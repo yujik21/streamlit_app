@@ -35,3 +35,42 @@ if web_apps == "Exploratory Data Analysis":
         st.write("Number of boolean variables:", num_boolean)
 
         selected_column = st.sidebar.selectbox("Select a Column", df.columns)
+        
+        column_type = df[selected_column].dtype
+        if column_type in ['int64', 'float64']:
+            st.subheader("Numerical Column Analysis: " + selected_column)
+
+            summary_table = df[selected_column].describe()
+            st.write("Five Number Summary:")
+            st.write(summary_table)
+
+            st.write("Box Plot:")
+            fig, ax = plt.subplots()
+            sns.boxplot(data=df, y=selected_column)
+            ax.set_ylabel(selected_column)
+            st.pyplot(fig)
+
+        elif column_type == 'object':
+            st.subheader("Categorical Column Analysis: " + selected_column)
+
+            category_proportions = df[selected_column].value_counts(
+                normalize=True)
+            st.write("Proportions of Each Category Level:")
+            st.write(category_proportions)
+
+            st.write("Bar Plot:")
+            fig, ax = plt.subplots()
+            sns.countplot(data=df, x=selected_column)
+            ax.set_xlabel(selected_column)
+            ax.set_ylabel("Count")
+            st.pyplot(fig)
+
+elif web_apps == "Correlation":
+
+    if df is None:
+        uploaded_file = st.file_uploader("Upload a file for correlation analysis")
+
+        if uploaded_file is not None:
+            # Can be used wherever a "file-like" object is accepted:
+            df = pd.read_csv(uploaded_file)
+
