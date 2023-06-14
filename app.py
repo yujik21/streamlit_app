@@ -3,6 +3,15 @@ import pandas as pd
 from matplotlib import pyplot as plt
 import seaborn as sns
 
+# USE THIS TO ADD TO GITHUB, RUN IN TERMINAL 
+# git init 
+# git add . (adds all files)
+# git commit -m "initial commit" 
+# git branch -M main 
+# git remote add origin https://github.com/noorbenny/streamlit_app.git 
+# git push -u origin main 
+
+
 web_apps = st.sidebar.selectbox("Select Web Apps",
                                 ("Exploratory Data Analysis", "Distributions", "Correlation"))
 
@@ -65,6 +74,10 @@ if web_apps == "Exploratory Data Analysis":
             ax.set_ylabel("Count")
             st.pyplot(fig)
 
+            #for the histogram
+            choose_color = st.color_picker('Pick a Color', "#69b3a2")
+            choose_opacity = st.slider('Color Opacity', min_value=0.0, max_value=1.0, step=0.05)
+
 elif web_apps == "Correlation":
 
     if df is None:
@@ -73,4 +86,6 @@ elif web_apps == "Correlation":
         if uploaded_file is not None:
             # Can be used wherever a "file-like" object is accepted:
             df = pd.read_csv(uploaded_file)
-
+    if df is None:
+        st.subheader("Correlation Analysis")
+        selected_columns = st.sidebar.multiselect("Select Columns", df.columns)
