@@ -15,14 +15,13 @@ import seaborn as sns
 web_apps = st.sidebar.selectbox("Select Web Apps",
                                 ("Exploratory Data Analysis", "Distributions", "Correlation"))
 
-df = None  # Define df variable
+df = None
 
 if web_apps == "Exploratory Data Analysis":
 
     uploaded_file = st.sidebar.file_uploader("Choose a file")
 
     if uploaded_file is not None:
-        # Can be used wherever a "file-like" object is accepted:
         df = pd.read_csv(uploaded_file)
         show_df = st.checkbox("Show Data Frame", key="disabled")
 
@@ -44,6 +43,10 @@ if web_apps == "Exploratory Data Analysis":
         st.write("Number of boolean variables:", num_boolean)
 
         selected_column = st.sidebar.selectbox("Select a Column", df.columns)
+
+        #for the histogram
+        choose_color = st.color_picker('Pick a Color', "#69b3a2")
+        choose_opacity = st.slider('Color Opacity', min_value=0.0, max_value=1.0, step=0.05)
         
         column_type = df[selected_column].dtype
         if column_type in ['int64', 'float64']:
@@ -74,18 +77,34 @@ if web_apps == "Exploratory Data Analysis":
             ax.set_ylabel("Count")
             st.pyplot(fig)
 
-            #for the histogram
-            choose_color = st.color_picker('Pick a Color', "#69b3a2")
-            choose_opacity = st.slider('Color Opacity', min_value=0.0, max_value=1.0, step=0.05)
 
 elif web_apps == "Correlation":
-
     if df is None:
         uploaded_file = st.file_uploader("Upload a file for correlation analysis")
 
         if uploaded_file is not None:
-            # Can be used wherever a "file-like" object is accepted:
             df = pd.read_csv(uploaded_file)
-    if df is None:
+
+    if df is not None:  # Check if df has been assigned a value
         st.subheader("Correlation Analysis")
         selected_columns = st.sidebar.multiselect("Select Columns", df.columns)
+        if len(selected_columns) == 2:
+            column_types = df[selected_columns].dtypes
+
+            if all(column_types.astype(str).str.startswith(('float', 'int'))):
+                st.write("Correlation Matrix:")
+                corr_matrix = df[selected_columns].corr()
+                st.write(corr_matrix)
+
+                st.write("Scatter Plot:")
+                fig, ax = plt.subplots()
+                ax.scatter(df[selected_columns[0]], df[selected_columns[1]])
+                ax.set_xlabel(selected_columns[0])
+                ax.set_ylabel(selected_columns[1])
+                st.pyplot(fig)
+            else:
+                st.write("Please select numerical columns.")
+        else:
+            st.write("Please select exactly two columns.")
+    else:
+        st.write("Upload a file to perform correlation analysis.")
